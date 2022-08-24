@@ -31,7 +31,7 @@ async function run(){
       });
       
       // step 2 get existing all data from database
-      app.get('/service', async(req, res) => {
+      app.get('/service/', async(req, res) => {
         const query = {};
         const cursor = serviceCollection.find(query);
         const service = await cursor.toArray();

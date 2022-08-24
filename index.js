@@ -22,13 +22,22 @@ async function run(){
       await client.connect();
       const serviceCollection = client.db('portfoliowalid').collection('service');
 
-      // add new service or post data
+      // step 1 add new service or post data
       app.post('/service', async(req, res) => {
         const newService = req.body;
         console.log('adding new service', newService);
         const result = await serviceCollection.insertOne(newService);
         res.send(result);
       });
+      
+      // step 2 get existing all data from database
+      app.get('/service', async(req, res) => {
+        const query = {};
+        const cursor = serviceCollection.find(query);
+        const service = await cursor.toArray();
+        res.send(service);
+      });
+
       
     }finally{
 

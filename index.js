@@ -1,12 +1,13 @@
 const express = require('express');
 const app = express();
+const env = require('dotenv').config();
 const port = process.env.PORT || 5000;
 const ObjectId = require('mongodb').ObjectId;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 app.use(cors());
 app.use(express.json());
-
 app.get('/', (req, res) =>{
     res.send('portfolio walid is testing')
 });
@@ -16,11 +17,65 @@ app.get('/', (req, res) =>{
 const uri = "mongodb+srv://walid2:UQGEQvGi2hZIsW2R@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+const verifyJWT=(req, res, next)=>{
+  const authHeader = req.headers.authorization;
+  if(!authHeader){
+    return res.status(401).send({message:"UnAuthorized access"});
+  }
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded){
+    if(err){
+      return res.status(403).send({message:"Forbidden access"})
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
 async function run(){
     try{
       await client.connect();
       const serviceCollection = client.db('walid2').collection('service');
       const commentCollection = client.db('walid2').collection('comment');
+      const userCollection = client.db('walid2').collection('user');
+       
+      // All user section update
+      app.get('/users/', async(req, res)=>{
+        // const authorization = req.headers.authorization;
+        // console.log('auth headers', authorization);
+        const users = await userCollection.find().toArray();
+        res.send(users);
+      });
+      // Admin user section update
+      app.put('/users/admin/:email', async(req, res)=>{
+        const email = req.params.email;
+        const filter = {email:email};
+        const updatedDoc={
+          $set:{role:'admin'},
+        };
+        const result = await userCollection.updateOne(filter, updatedDoc)
+        res.send(result);
+      });
+      //   // delete user data
+      //   app.delete('/users/:id', async(req, res) =>{
+      //     const id = req.params.id;
+      //     const query = {_id: ObjectId(id)};
+      //     const result = await userCollection.deleteOne(query);
+      //     res.send(result);
+      // });
+      // user section update
+      app.put('/user/:email', async(req, res)=>{
+        const email = req.params.email;
+        const user = req.body;
+        const filter = {email:email};
+        const options = {upsert:true};
+        const updatedDoc={
+          $set:user,
+        };
+        const result = await userCollection.updateOne(filter, updatedDoc, options)
+        const token = jwt.sign({email:email}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        res.send({result, token});
+      });
       // step 1 add new service or post data
       app.post('/service', async(req, res) => {
         const newService = req.body;

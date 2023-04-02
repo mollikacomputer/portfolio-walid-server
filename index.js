@@ -47,22 +47,30 @@ async function run(){
         res.send(users);
       });
       // Admin user section update
-      app.put('/users/admin/:email', async(req, res)=>{
+      app.put('/users/admin/:email', verifyJWT, async(req, res)=>{
         const email = req.params.email;
-        const filter = {email:email};
-        const updatedDoc={
-          $set:{role:'admin'},
-        };
-        const result = await userCollection.updateOne(filter, updatedDoc)
-        res.send(result);
+        const requester = req.decoded.email;
+        const requesterAccount = await userCollection.findOne({email:requester});
+        if(requesterAccount.role === 'admin'){
+          const filter = {email:email};
+          const updatedDoc={
+            $set:{role:'admin'},
+          };
+          const result = await userCollection.updateOne(filter, updatedDoc)
+          res.send(result);
+        }
+        else{
+          res.status(403).send({message:'Forbidden'})
+        }
+       
       });
-      //   // delete user data
-      //   app.delete('/users/:id', async(req, res) =>{
-      //     const id = req.params.id;
-      //     const query = {_id: ObjectId(id)};
-      //     const result = await userCollection.deleteOne(query);
-      //     res.send(result);
-      // });
+        // delete user data
+        app.delete('/users/:id', async(req, res) =>{
+          const id = req.params.id;
+          const query = {_id: ObjectId(id)};
+          const result = await userCollection.deleteOne(query);
+          res.send(result);
+      });
       // user section update
       app.put('/user/:email', async(req, res)=>{
         const email = req.params.email;

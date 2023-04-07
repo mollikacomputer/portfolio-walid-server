@@ -14,8 +14,8 @@ app.get('/', (req, res) =>{
 //user walid2
 // password UQGEQvGi2hZIsW2R
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
-const uri = `mongodb+srv://walid2:UQGEQvGi2hZIsW2R@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://walid2:UQGEQvGi2hZIsW2R@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 // const ACCESS_Token = "011d29bac389f4ddb640d0590228cfc9dca93e3b416a30ca3cbc2d41384f2099e33e2185a2a379f2fa3fb4031af523ff8295d2feedccc3f8629be0a8d45c62a6";
 const verifyJWT=(req, res, next)=>{

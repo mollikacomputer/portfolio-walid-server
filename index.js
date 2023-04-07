@@ -17,14 +17,14 @@ app.get('/', (req, res) =>{
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://walid2:UQGEQvGi2hZIsW2R@cluster0.lj1zpkv.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-const ACCESS_Token = "011d29bac389f4ddb640d0590228cfc9dca93e3b416a30ca3cbc2d41384f2099e33e2185a2a379f2fa3fb4031af523ff8295d2feedccc3f8629be0a8d45c62a6";
+// const ACCESS_Token = "011d29bac389f4ddb640d0590228cfc9dca93e3b416a30ca3cbc2d41384f2099e33e2185a2a379f2fa3fb4031af523ff8295d2feedccc3f8629be0a8d45c62a6";
 const verifyJWT=(req, res, next)=>{
   const authHeader = req.headers.authorization;
   if(!authHeader){
     return res.status(401).send({message:"UnAuthorized access"});
   }
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, ACCESS_Token, function(err, decoded){
+  jwt.verify(token, ACCESS_TOKEN_SECRET, function(err, decoded){
     if(err){
       return res.status(403).send({message:"Forbidden access"})
     }
@@ -84,7 +84,7 @@ async function run(){
           $set:user,
         };
         const result = await userCollection.updateOne(filter, updatedDoc, options)
-        const token = jwt.sign({email:email}, ACCESS_Token, { expiresIn: '1h' })
+        const token = jwt.sign({email:email}, ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
         res.send({result, token});
       });
       // step 1 add new service or post data
